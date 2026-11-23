@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f2">
+  <title>Masuk Bendahara | Kas Kelas</title>
+  <link rel="stylesheet" href="/styles.css">
+</head>
+<body class="login-page">
+  <header class="topbar"><a class="wordmark" href="/"><span class="brand-mark">K</span><span>kas<span class="wordmark-light">kelas</span></span></a><a class="quiet-link" href="/">← Kembali ke papan kas</a></header>
+  <main class="login-wrap">
+    <div class="login-aside"><p class="eyebrow"><span class="live-dot"></span> RUANG BENDAHARA</p><h1>Rapi di buku,<br><em>tenang di kelas.</em></h1><p>Kelola transaksi, anggota, iuran, dan rencana kegiatan dari satu tempat.</p><div class="login-mark">KK<span> / </span>01</div></div>
+    <section class="login-card">
+      <div class="login-icon">↗</div><p class="eyebrow">AKSES TERBATAS</p><h2>Masuk ke panel</h2><p class="subheading">Gunakan akun bendahara kelas.</p>
+      <% if (error) { %><div class="form-alert"><%= error %></div><% } %>
+      <form method="post" action="/admin/login" class="stack-form">
+        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
+        <label>Username<input name="username" type="text" autocomplete="username" required autofocus></label>
+        <label>Password<input name="password" type="password" autocomplete="current-password" required></label>
+        <button class="button button-primary button-wide" type="submit">Masuk sebagai bendahara <span>→</span></button>
+      </form>
+      <p class="login-footnote">Akses ini hanya untuk bendahara yang ditunjuk kelas.</p>
+    </section>
+  </main>
+  <footer class="site-footer"><span>Kas Kelas</span><span>Website oleh <strong>Bedurlagi</strong></span></footer>
+</body>
+</html>

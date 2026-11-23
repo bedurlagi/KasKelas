@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f2">
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <title>Panel Bendahara | Kas Kelas</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/admin.js" defer></script>
+</head>
+<body class="admin-page">
+  <header class="topbar admin-topbar">
+    <a class="wordmark" href="/"><span class="brand-mark">K</span><span>kas<span class="wordmark-light">kelas</span></span></a>
+    <div class="topbar-actions"><a class="quiet-link" href="/" target="_blank" rel="noreferrer">Lihat halaman publik <span aria-hidden="true">↗</span></a><form method="post" action="/admin/logout"><input type="hidden" name="_csrf" value="<%= csrfToken %>"><button class="quiet-link logout-button" type="submit">Keluar <span aria-hidden="true">↗</span></button></form></div>
+  </header>
+  <main class="admin-main">
+    <div class="admin-title-row"><div><p class="eyebrow"><span class="live-dot"></span> PANEL PENGELOLAAN</p><h1>Halo, bendahara.</h1><p class="subheading">Catat dengan rapi, biar semua ikut percaya.</p></div><div class="admin-date" id="today-label"></div></div>
+    <div class="admin-summary" id="admin-summary"></div>
+    <nav class="admin-tabs" aria-label="Kelola data">
+      <button type="button" class="admin-tab active" data-tab="transactions">Transaksi</button>
+      <button type="button" class="admin-tab" data-tab="payments">Pembayaran</button>
+      <button type="button" class="admin-tab" data-tab="members">Anggota</button>
+      <button type="button" class="admin-tab" data-tab="wishlist">Wishlist</button>
+      <button type="button" class="admin-tab" data-tab="settings">Pengaturan</button>
+      <button type="button" class="admin-tab" data-tab="admins">Bendahara</button>
+    </nav>
+    <div id="admin-message" class="admin-message" role="status" aria-live="polite"></div>
+
+    <section class="admin-panel active" data-admin-panel="transactions">
+      <div class="admin-work-grid">
+        <section class="admin-form-panel"><div class="section-heading"><div><p class="eyebrow">CATAT KAS</p><h2 id="transaction-form-title">Transaksi baru</h2></div></div>
+          <form id="transaction-form" class="stack-form">
+            <input type="hidden" name="id">
+            <div class="form-grid two-col"><label>Jenis transaksi<select name="type"><option value="income">Pemasukan</option><option value="expense">Pengeluaran</option></select></label><label>Nominal (Rp)<input name="amount" type="number" min="1" step="1" placeholder="5000" required></label></div>
+            <div class="form-grid two-col"><label>Tanggal<input name="date" type="date" required></label><label id="student-field">Pembayaran anggota <select name="studentId" id="transaction-student"><option value="">Bukan pembayaran anggota</option></select></label></div>
+            <label id="period-field" class="hidden-field">Periode iuran (mulai hari Senin)<input name="period" type="date"></label>
+            <label>Keterangan<input name="note" maxlength="180" placeholder="Contoh: Kas mingguan - Alya" required></label>
+            <div class="form-actions"><button class="button button-primary" type="submit" id="transaction-submit">Simpan transaksi <span>→</span></button><button class="button button-secondary hidden-field" type="button" data-cancel="transaction">Batal edit</button></div>
+          </form>
+        </section>
+        <section class="admin-list-panel"><div class="section-heading"><div><p class="eyebrow">BUKU KAS</p><h2>Transaksi tercatat</h2></div><span class="list-total" id="transaction-total"></span></div><div class="admin-record-list" id="admin-transactions"></div></section>
+      </div>
+    </section>
+
+    <section class="admin-panel" data-admin-panel="payments">
+      <section class="payments-admin-panel">
+        <div class="section-heading"><div><p class="eyebrow">REKAP IURAN MINGGUAN</p><h2>Status pembayaran anggota</h2><p class="subheading" id="admin-payment-description">Centang lunas, tanggal setoran, dan sisa iuran.</p></div></div>
+        <div class="payment-toolbar admin-payment-toolbar">
+          <label>Periode pembayaran<input id="admin-period" type="date"></label>
+          <a id="payment-export" class="button button-secondary" href="/api/admin/payments.xlsx" title="Unduh rekap ke Excel">↓ <span>Export Excel</span></a>
+          <form id="payment-import-form" class="import-form"><label class="file-label">Pilih file .xlsx<input id="payment-file" name="file" type="file" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" required></label><button class="button button-primary" type="submit">↑ <span>Import</span></button></form>
+        </div>
+        <div class="payment-table-wrap"><table class="payment-table admin-payment-table" aria-label="Tabel pembayaran kas anggota"><thead><tr><th>Anggota</th><th>Status</th><th>Dibayar</th><th>Tanggal bayar</th><th>Tunggakan</th><th>Aksi</th></tr></thead><tbody id="admin-payments"><tr><td colspan="6" class="loading">Memuat pembayaran...</td></tr></tbody></table></div>
+        <p class="public-note">Import harus memuat semua anggota untuk satu periode. Pembayaran anggota pada periode tersebut akan diganti sesuai file; transaksi umum dan periode lain tidak berubah.</p>
+      </section>
+    </section>
+
+    <section class="admin-panel" data-admin-panel="members">
+      <div class="admin-work-grid">
+        <section class="admin-form-panel"><div class="section-heading"><div><p class="eyebrow">DAFTAR KELAS</p><h2 id="member-form-title">Tambah anggota</h2></div></div>
+          <form id="member-form" class="stack-form"><input type="hidden" name="id"><label>Nama lengkap<input name="name" maxlength="80" placeholder="Nama mahasiswa" required></label><div class="form-grid two-col"><label>NIM<input name="studentNo" maxlength="40" placeholder="Opsional"></label><label>Gender<select name="gender"><option value="">Tidak diisi</option><option value="P">P</option><option value="L">L</option></select></label></div><div class="form-actions"><button class="button button-primary" type="submit" id="member-submit">Tambah anggota <span>→</span></button><button class="button button-secondary hidden-field" type="button" data-cancel="member">Batal edit</button></div></form>
+          <div class="info-strip"><span class="icon-disc">i</span><p>Menghapus anggota tidak menghapus riwayat transaksinya. Catatan lama tetap tersimpan.</p></div>
+        </section>
+        <section class="admin-list-panel"><div class="section-heading"><div><p class="eyebrow">ANGGOTA AKTIF</p><h2>Daftar anggota</h2></div><span class="list-total" id="member-total"></span></div><div class="admin-record-list" id="admin-members"></div></section>
+      </div>
+    </section>
+
+    <section class="admin-panel" data-admin-panel="wishlist">
+      <div class="admin-work-grid">
+        <section class="admin-form-panel"><div class="section-heading"><div><p class="eyebrow">RENCANA KELAS</p><h2 id="wishlist-form-title">Tambah wishlist</h2></div></div>
+          <form id="wishlist-form" class="stack-form"><input type="hidden" name="id"><label>Nama acara<input name="name" maxlength="100" placeholder="Contoh: Piknik akhir semester" required></label><label>Catatan singkat<textarea name="description" maxlength="240" rows="3" placeholder="Apa yang ingin dilakukan bersama?"></textarea></label><div class="form-grid two-col"><label>Perkiraan waktu<input name="date" type="text" maxlength="40" placeholder="Mis. Desember 2026"></label><label>Perkiraan biaya (Rp)<input name="estimatedCost" type="number" min="1" step="1" placeholder="150000" required></label></div><label>Status<select name="status"><option>Rencana</option><option>Terealisasi</option><option>Dibatalkan</option></select></label><div class="form-actions"><button class="button button-primary" type="submit" id="wishlist-submit">Simpan wishlist <span>→</span></button><button class="button button-secondary hidden-field" type="button" data-cancel="wishlist">Batal edit</button></div></form>
+        </section>
+        <section class="admin-list-panel"><div class="section-heading"><div><p class="eyebrow">IDE BERSAMA</p><h2>Wishlist acara</h2></div><span class="list-total" id="wishlist-total"></span></div><div class="admin-record-list" id="admin-wishlist"></div></section>
+      </div>
+    </section>
+
+    <section class="admin-panel" data-admin-panel="settings">
+      <section class="settings-panel"><p class="eyebrow">ATURAN IURAN</p><h2>Nominal kas wajib</h2><p class="subheading">Nilai ini menjadi acuan status pembayaran untuk setiap periode mingguan.</p><form id="settings-form" class="settings-form"><label>Kas per minggu (Rp)<input name="weeklyDue" type="number" min="0" step="1" required></label><button class="button button-primary" type="submit">Simpan pengaturan <span>→</span></button></form><div class="info-strip"><span class="icon-disc">i</span><p>Periode pembayaran berjalan dimulai setiap hari Senin. Saat menambahkan pemasukan anggota, pilih periode yang sesuai.</p></div></section>
+    </section>
+
+    <section class="admin-panel" data-admin-panel="admins">
+      <div class="admin-work-grid">
+        <section class="admin-form-panel"><div class="section-heading"><div><p class="eyebrow">AKSES PENGELOLA</p><h2>Tambah bendahara</h2></div></div>
+          <form id="admin-account-form" class="stack-form"><label>Nama bendahara<input name="name" maxlength="80" autocomplete="name" required></label><label>Username<input name="username" minlength="3" maxlength="40" pattern="[A-Za-z0-9._-]+" autocomplete="username" required></label><label>Password sementara<input name="password" type="password" minlength="10" maxlength="200" autocomplete="new-password" required></label><p class="subheading">Password harus minimal 10 karakter. Sampaikan langsung kepada bendahara baru.</p><button class="button button-primary" type="submit">Buat akun bendahara <span>→</span></button></form>
+          <div class="info-strip"><span class="icon-disc">i</span><p>Hanya bendahara yang sudah login dapat membuat akun baru. Password di-hash sebelum disimpan dan tidak dapat dilihat kembali.</p></div>
+        </section>
+        <section class="admin-list-panel"><div class="section-heading"><div><p class="eyebrow">AKUN TERDAFTAR</p><h2>Daftar bendahara</h2></div><span class="list-total" id="admin-account-total"></span></div><div class="admin-record-list" id="admin-accounts"><p class="loading">Memuat akun...</p></div></section>
+      </div>
+    </section>
+  </main>
+  <footer class="site-footer"><span>Panel Kas Kelas</span><span>Website oleh <strong>Bedurlagi</strong></span></footer>
+</body>
+</html>

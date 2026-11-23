@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f6f7f2">
+  <meta name="csrf-token" content="<%= csrfToken %>">
+  <title>Kas Kelas | Transparan, bareng-bareng</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/public.js" defer></script>
+</head>
+<body class="public-page">
+  <header class="topbar">
+    <a class="wordmark" href="/" aria-label="Kas Kelas beranda"><span class="brand-mark">K</span><span>kas<span class="wordmark-light">kelas</span></span></a>
+    <a class="quiet-link" href="/admin/login">Masuk bendahara <span aria-hidden="true">↗</span></a>
+  </header>
+
+  <main class="public-main">
+    <section class="intro-row">
+      <div>
+        <p class="eyebrow"><span class="live-dot"></span> Papan kas kelas</p>
+        <h1>Uang kelas,<br><em>tercatat jelas.</em></h1>
+        <p class="intro-copy">Ringkasan kas dan rencana kegiatan, terbuka untuk semua.</p>
+      </div>
+      <div class="period-chip"><span class="tiny-label">PERIODE IURAN</span><strong id="period-label">Memuat...</strong></div>
+    </section>
+
+    <section class="summary-grid" aria-label="Ringkasan keuangan">
+      <article class="summary-card balance-card">
+        <div class="card-label"><span class="icon-disc">↗</span><span>Saldo saat ini</span></div>
+        <p class="summary-amount" id="balance-value">—</p>
+        <span class="card-footnote">Dana tersedia di kas kelas</span>
+      </article>
+      <article class="summary-card">
+        <div class="card-label"><span class="icon-disc income-icon">＋</span><span>Total pemasukan</span></div>
+        <p class="summary-amount" id="income-value">—</p>
+        <span class="card-footnote">Seluruh dana yang diterima</span>
+      </article>
+      <article class="summary-card">
+        <div class="card-label"><span class="icon-disc expense-icon">−</span><span>Total pengeluaran</span></div>
+        <p class="summary-amount" id="expense-value">—</p>
+        <span class="card-footnote">Seluruh dana yang digunakan</span>
+      </article>
+    </section>
+
+    <nav class="section-tabs" aria-label="Bagian kas kelas">
+      <button class="section-tab active" data-section="overview" type="button">Ringkasan</button>
+      <button class="section-tab" data-section="members" type="button">Pembayaran <span id="member-count" class="tab-count">—</span></button>
+      <button class="section-tab" data-section="transactions" type="button">Transaksi</button>
+      <button class="section-tab" data-section="wishlist" type="button">Wishlist</button>
+    </nav>
+
+    <section class="content-panel active" data-panel="overview">
+      <div class="overview-columns">
+        <div class="panel-block">
+          <div class="section-heading"><div><p class="eyebrow">KONTRIBUSI KELAS</p><h2>Status iuran</h2></div><button class="text-action" type="button" data-go="members">Lihat semua <span>→</span></button></div>
+          <div id="overview-members" class="member-list compact-list"><p class="loading">Memuat status anggota...</p></div>
+        </div>
+        <div class="panel-block">
+          <div class="section-heading"><div><p class="eyebrow">DANA TERBARU</p><h2>Aktivitas kas</h2></div><button class="text-action" type="button" data-go="transactions">Riwayat <span>→</span></button></div>
+          <div id="overview-transactions" class="transaction-list compact-list"><p class="loading">Memuat transaksi...</p></div>
+        </div>
+      </div>
+      <div class="spotlight-row"><div><p class="eyebrow">RENCANA KELAS</p><h2>Yang sedang kita impikan</h2></div><button class="text-action" type="button" data-go="wishlist">Buka wishlist <span>→</span></button></div>
+      <div id="overview-wishlist" class="wishlist-grid"></div>
+    </section>
+
+    <section class="content-panel" data-panel="members">
+      <div class="section-heading page-heading"><div><p class="eyebrow">KONTRIBUSI KELAS</p><h2>Siapa sudah setor?</h2><p class="subheading" id="dues-description">Iuran periode ini</p></div></div>
+      <label class="search-box"><span aria-hidden="true">⌕</span><input id="member-search" type="search" placeholder="Cari nama anggota..." autocomplete="off"><kbd>/</kbd></label>
+      <div class="payment-toolbar"><label>Periode pembayaran<input id="public-period" type="date"></label><span id="public-payment-count" class="list-total"></span></div>
+      <div class="payment-table-wrap"><table class="payment-table" aria-label="Tabel pembayaran kas"><thead><tr><th>Anggota</th><th>Status</th><th>Dibayar</th><th>Tanggal bayar</th><th>Tunggakan</th></tr></thead><tbody id="public-payments"><tr><td colspan="5" class="loading">Memuat pembayaran...</td></tr></tbody></table></div>
+      <p class="public-note">Informasi ini hanya dapat dilihat. Perubahan data dikelola oleh bendahara kelas.</p>
+    </section>
+
+    <section class="content-panel" data-panel="transactions">
+      <div class="section-heading page-heading"><div><p class="eyebrow">CATATAN KEUANGAN</p><h2>Riwayat transaksi</h2><p class="subheading">Setiap pemasukan dan pengeluaran kas.</p></div></div>
+      <div class="filter-row" role="group" aria-label="Filter transaksi">
+        <button class="filter-chip active" type="button" data-filter="all">Semua</button>
+        <button class="filter-chip" type="button" data-filter="income">Pemasukan</button>
+        <button class="filter-chip" type="button" data-filter="expense">Pengeluaran</button>
+      </div>
+      <div id="transactions-list" class="transaction-list full-list"><p class="loading">Memuat transaksi...</p></div>
+    </section>
+
+    <section class="content-panel" data-panel="wishlist">
+      <div class="section-heading page-heading"><div><p class="eyebrow">NANTI KITA MAU KE MANA?</p><h2>Wishlist acara kelas</h2><p class="subheading">Ide bersama, dengan perkiraan biaya yang transparan.</p></div></div>
+      <div id="wishlist-list" class="wishlist-grid"><p class="loading">Memuat rencana...</p></div>
+      <p class="public-note">Wishlist bersifat informatif. Bendahara kelas mengelola perubahan rencana.</p>
+    </section>
+  </main>
+
+  <footer class="site-footer"><span>Kas Kelas <span id="footer-year"></span></span><span>Website oleh <strong>Bedurlagi</strong> · Terbuka untuk seluruh anggota kelas</span></footer>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+</body>
+</html>
